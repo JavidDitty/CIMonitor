@@ -15,9 +15,9 @@ import sys
 
 def detect(workspace):
     try: # For Python >= 3.8
-        import importlib.metadata as metadata 
+        import importlib.metadata as meta 
     except ImportError: # For Python < 3.8
-        import importlib_metadata as metadata
+        import importlib_metadata as meta
 
     paths = []
     for dist in meta.distributions():
@@ -69,6 +69,9 @@ if __name__ == '__main__':
     workspace = os.environ.get('GITHUB_WORKSPACE', '')
     if not workspace:
         sys.exit(0)
-    paths = detect(workspace)
+    try:
+        paths = detect(workspace)
+    except:
+        paths = []
     if paths:
         print(os.pathsep.join(paths))

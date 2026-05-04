@@ -245,6 +245,7 @@ runs:
             # Detect site-packages paths for packages installed from the workspace
             # so the profiler captures project-internal calls (not just files under
             # GITHUB_WORKSPACE).  Runs once here, result is read by the profiler.
+            python3 -m pip install importlib-metadata
             _proj_paths=$(python3 "${{ github.action_path }}/tools/detect_project_paths.py" 2>/dev/null || true)
             if [ -n "$_proj_paths" ]; then
               export CINTENT_PROJECT_PATHS="$_proj_paths"
