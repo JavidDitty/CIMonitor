@@ -14,6 +14,14 @@ import threading
 log_file = os.environ.get('CINTENT_PROFILE_LOG')
 step_id = os.environ.get('CINTENT_STEP_ID', '0')
 
+_workspace = os.environ.get('GITHUB_WORKSPACE', '')
+_extra = os.environ.get('CINTENT_PROJECT_PATHS', '')
+_ws_prefixes = tuple(
+    p for p in ([_workspace] + _extra.split(os.pathsep)) if p
+)
+def _is_workspace(filename: str) -> bool:
+    return bool(_ws_prefixes) and filename.startswith(_ws_prefixes)
+
 if not log_file:
     timestamp = int(time.time() * 1000000000)  # nanoseconds
     log_dir = os.environ.get('CINTENT_LOGS', '/tmp')
@@ -56,6 +64,8 @@ def profile_handler(frame, event, arg):
     # Only log call and return events for Python functions
     if event in ('call', 'return'):
         with write_lock:
+            if _ws_prefixes and not _is_workspace(frame.f_code.co_filename):
+                return
             if is_shutting_down:
                 return
             if call_count >= max_calls:
