@@ -34,15 +34,15 @@ if not function_log_file:
 
 # Open log files
 profile_log = open(profile_log_file, 'w')
-profile_log.write("timestamp_ns,event,function,filename,line\n")
+profile_log.write("timestamp_ns,event,function_id\n")
 profile_log.flush()
 function_log = open(function_log_file, 'w')
-function_log.write("name,path,line,is_external,code\n")
+function_log.write("function_id,name,path,line,is_external,code\n")
 function_log.flush()
 
 call_count = 0
 function_count = 0
-logged_functions = set()
+logged_functions = {}
 max_calls = int(os.environ.get('CINTENT_MAX_CALLS', '1000000'))  # Limit to prevent huge files
 is_shutting_down = False
 write_lock = threading.Lock()
@@ -66,8 +66,8 @@ def profile_handler(frame, event, arg):
         return
 
     # Limit total calls to prevent giant log files
-    if call_count >= max_calls:
-        return
+    # if call_count >= max_calls:
+    #     return
 
     # Filter out profiler itself
     if 'setprofile_profiler' in frame.f_code.co_filename:
@@ -81,8 +81,8 @@ def profile_handler(frame, event, arg):
             #     return
             if is_shutting_down:
                 return
-            if call_count >= max_calls:
-                return
+            # if call_count >= max_calls:
+            #     return
             call_count += 1
 
             timestamp_ns = int(time.time() * 1000000000)
@@ -96,10 +96,10 @@ def profile_handler(frame, event, arg):
                     code = inspect.getsource(frame)
                 except:
                     code = ''
-                function_log.write(f"{function},{filename},{line},{is_external},{code}\n")
-                logged_functions.add(key)
                 function_count += 1
-            profile_log.write(f"{timestamp_ns},{event},{function},{filename},{line}\n")
+                logged_functions[key] = function_count
+                function_log.write(f"{function_count},{function},{filename},{line},{is_external},{code}\n")     
+            profile_log.write(f"{timestamp_ns},{event},{logged_functions[key]}\n")
 
             # Flush periodically
             if call_count % 1000 == 0:
