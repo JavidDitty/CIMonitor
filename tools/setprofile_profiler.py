@@ -165,8 +165,8 @@ def cleanup():
         paths_file.close()
     
         func_count = len(sandwich_csv) - 1
-        call_count = sum(entry[2] for entry in graph_csv) if len(graph_csv) >= 2 else 0
-        path_count = sum(entry[1] for entry in paths_csv) if len(paths_csv) >= 2 else 0
+        call_count = sum(entry[2] for entry in graph_csv[1:]) if len(graph_csv) >= 2 else 0
+        path_count = sum(entry[1] for entry in paths_csv[1:]) if len(paths_csv) >= 2 else 0
         print(f"[setprofile] Captured {func_count} functions to {sandwich_path}, {call_count} calls to {graph_path}, and {path_count} paths to {paths_path}", file=sys.stderr)
 
 
