@@ -7,11 +7,13 @@ set -u
 # No root access needed, works on any platform
 
 TIMESTAMP=$(date +%s%N)
-LOG_FILE="$CINTENT_LOGS/$TIMESTAMP.$CINTENT_STEP_ID.setprofile.csv"
+PROFILE_LOG_FILE="$CINTENT_LOGS/$TIMESTAMP.$CINTENT_STEP_ID.setprofile.csv"
+FUNCTION_LOG_FILE="$CINTENT_LOGS/$TIMESTAMP.$CINTENT_STEP_ID.setprofile.functions.csv"
 PROFILER_SCRIPT="$CINTENT_SETPROFILE_SCRIPT"
 
 # Export environment variables for the profiler
-export CINTENT_PROFILE_LOG="$LOG_FILE"
+export CINTENT_PROFILE_LOG="$PROFILE_LOG_FILE"
+export CINTENT_FUNCTIONS_LOG="$FUNCTION_LOG_FILE"
 export CINTENT_MAX_CALLS="${CINTENT_MAX_CALLS:-1000000}"
 
 # Check if process is Python

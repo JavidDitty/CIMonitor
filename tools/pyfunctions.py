@@ -115,6 +115,7 @@ def parse_functions(root_dir: str) -> Generator[dict, None, None]:
                 'class_docstring': json.dumps(class_docstring) if class_docstring else None,
                 'path': relpath, 
                 'line': line,
+                'code': json.dumps(node.text.decode()),
             }
 
 
@@ -126,7 +127,7 @@ def to_csv(root_dir: str, out_dir: str) -> None:
     filename = f'{Path(root_dir).stem}.functions.csv'
     out_path = os.path.join(out_dir, filename)
     with open(out_path, mode='w', encoding='utf-8', newline='') as file:
-        fieldnames = ['name', 'fq_name', 'header', 'docstring', 'class_name', 'class_docstring', 'path', 'line']
+        fieldnames = ['name', 'fq_name', 'header', 'docstring', 'class_name', 'class_docstring', 'path', 'line', 'code']
         writer = DictWriter(file, fieldnames=fieldnames, quoting=QUOTE_ALL)
         writer.writeheader()
         writer.writerows(functions)
