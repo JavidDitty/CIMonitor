@@ -111,6 +111,9 @@ def profile_handler(frame, event, arg):
         elif event in 'return':
             return_timestamp = time.time_ns()
 
+            if not data["stack"]:
+                return
+
             path = tuple(data["stack"])
             if path not in data["paths"]:
                 data["paths"][path] = {"count": 0, "duration": 0}
