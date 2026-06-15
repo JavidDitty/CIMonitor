@@ -91,14 +91,14 @@ def profile_handler(frame, event, arg):
             line = frame.f_lineno
 
             key = (function, filename, line)
-            if event == 'call' and key not in logged_functions:
+            if key not in logged_functions:
+                function_count += 1
+                logged_functions[key] = function_count
                 try:
                     code = inspect.getsource(frame)
                 except:
                     code = ''
-                function_count += 1
-                logged_functions[key] = function_count
-                function_log.write(f"{function_count},{function},{filename},{line},{is_external},{code}\n")     
+                function_log.write(f"{function_count},{function},{filename},{line},{is_external},{code}\n")
             profile_log.write(f"{timestamp_ns},{event},{logged_functions[key]}\n")
 
             # Flush periodically
