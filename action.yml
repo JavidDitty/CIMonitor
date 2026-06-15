@@ -218,7 +218,7 @@ runs:
               printf 'if _s and os.path.isfile(_s): exec(open(_s).read())\n'
             } > "$_cintent_site/sitecustomize.py"
             export CINTENT_SETPROFILE_SCRIPT="${{ env.CINTENT_SETPROFILE_SCRIPT }}"
-            export CINTENT_PROFILE_LOG="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.setprofile.csv"
+            # export CINTENT_PROFILE_LOG="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.setprofile.csv"
             export CINTENT_SETPROFILE_ACTIVE=true
             export PYTHONPATH="$_cintent_site${PYTHONPATH:+:$PYTHONPATH}"
           }
@@ -238,7 +238,7 @@ runs:
               printf 'if _s and os.path.isfile(_s): exec(open(_s).read())\n'
             } > "$_cintent_site/sitecustomize.py"
             export CINTENT_SYSMONITOR_SCRIPT="${{ env.CINTENT_SYSMONITOR_SCRIPT }}"
-            export CINTENT_PROFILE_LOG="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.sysmonitor.csv"
+            # export CINTENT_PROFILE_LOG="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.sysmonitor.csv"
             export CINTENT_SYSMONITOR_ACTIVE=true
             export PYTHONPATH="$_cintent_site${PYTHONPATH:+:$PYTHONPATH}"
 
