@@ -29,13 +29,13 @@ graph_file = open(graph_path, 'w')
 graph_writer = csv.writer(graph_file)
 graph = {}
 
-paths_path = os.environ.get('CINTENT_PATHS_LOG')
-if not paths_path:
-    log_dir = os.environ.get('CINTENT_LOGS', '/tmp')
-    paths_path = f"{log_dir}/{profile_timestamp}.{step_id}.setprofile.paths.csv"
-paths_file = open(paths_path, 'w')
-paths_writer = csv.writer(paths_file)
-paths = {}
+# paths_path = os.environ.get('CINTENT_PATHS_LOG')
+# if not paths_path:
+#     log_dir = os.environ.get('CINTENT_LOGS', '/tmp')
+#     paths_path = f"{log_dir}/{profile_timestamp}.{step_id}.setprofile.paths.csv"
+# paths_file = open(paths_path, 'w')
+# paths_writer = csv.writer(paths_file)
+# paths = {}
 
 
 # Get Workspace Information
@@ -74,7 +74,7 @@ def profile_handler(frame, event, arg):
             "call_to_id": {},
             "func_count": 0,
             "graph": {},
-            "paths": {},
+            # "paths": {},
             "sandwich": {},
             "stack": [],
         }
@@ -99,10 +99,12 @@ def profile_handler(frame, event, arg):
             id = data["call_to_id"][func_key]
 
             if id not in data["sandwich"]:
-                try:
-                    code = inspect.getsource(frame)
-                except:
-                    code = ''
+                code = ''
+                if func_name != "<module>":
+                    try:
+                        code = inspect.getsource(frame)
+                    except:
+                        code = ''
                 is_external = _ws_prefixes and not _is_workspace(frame.f_code.co_filename)
                 data["sandwich"][id] = {"count": 0, "duration": 0.0, "is_external": is_external, "code": code}
             data["sandwich"][id]["count"] += 1
@@ -114,11 +116,11 @@ def profile_handler(frame, event, arg):
             if not data["stack"]:
                 return
 
-            path = tuple(data["stack"])
-            if path not in data["paths"]:
-                data["paths"][path] = {"count": 0, "duration": 0}
-            data["paths"][path]["count"] += 1
-            data["paths"][path]["duration"] += (return_timestamp - data["stack"][0][1]) if len(path) >= 2 else (return_timestamp - profile_timestamp)
+            # path = tuple(data["stack"])
+            # if path not in data["paths"]:
+            #     data["paths"][path] = {"count": 0, "duration": 0}
+            # data["paths"][path]["count"] += 1
+            # data["paths"][path]["duration"] += (return_timestamp - data["stack"][0][1]) if len(path) >= 2 else (return_timestamp - profile_timestamp)
 
             callee = data["stack"].pop()
             duration = return_timestamp - callee[1]
@@ -146,7 +148,7 @@ def cleanup():
     with write_lock:
         sandwich_csv = [["id", "name", "path", "line", "count", "duration", "is_external", "code"]]
         graph_csv = [["src_id", "dst_id", "count", "duration"]]
-        paths_csv = [["ids", "count", "duration"]]
+        # paths_csv = [["ids", "count", "duration"]]
 
         for data in threads.values():
             id_to_call = {v: k for k, v in data["call_to_id"].items()}
@@ -157,17 +159,18 @@ def cleanup():
             graph_csv.extend([edge[0], edge[1], info["count"], info["duration"]] for edge, info in data["graph"].items())
             graph_writer.writerows(graph_csv)
 
-            paths_csv.extend(["->".join(str(node[0]) for node in chain), info["count"], info["duration"]] for chain, info in data["paths"].items())
-            paths_writer.writerows(paths_csv)
+            # paths_csv.extend(["->".join(str(node[0]) for node in chain), info["count"], info["duration"]] for chain, info in data["paths"].items())
+            # paths_writer.writerows(paths_csv)
 
         sandwich_file.close()
         graph_file.close() 
-        paths_file.close()
+        # paths_file.close()
     
         func_count = len(sandwich_csv) - 1
         call_count = sum(entry[2] for entry in graph_csv[1:]) if len(graph_csv) >= 2 else 0
-        path_count = sum(entry[1] for entry in paths_csv[1:]) if len(paths_csv) >= 2 else 0
-        print(f"[setprofile] Captured {func_count} functions to {sandwich_path}, {call_count} calls to {graph_path}, and {path_count} paths to {paths_path}", file=sys.stderr)
+        # path_count = sum(entry[1] for entry in paths_csv[1:]) if len(paths_csv) >= 2 else 0
+        # print(f"[setprofile] Captured {func_count} functions to {sandwich_path}, {call_count} calls to {graph_path}, and {path_count} paths to {paths_path}", file=sys.stderr)
+        print(f"[setprofile] Captured {func_count} functions to {sandwich_path} and {call_count} calls to {graph_path}", file=sys.stderr)
 
 
 # Register cleanup
@@ -177,4 +180,5 @@ atexit.register(cleanup)
 threading.setprofile(profile_handler)
 sys.setprofile(profile_handler)
 
-print(f"[setprofile] Profiling enabled, logging functions to {sandwich_path}, calls to {graph_path}, and call paths to {paths_path}", file=sys.stderr)
+# print(f"[setprofile] Profiling enabled, logging functions to {sandwich_path}, calls to {graph_path}, and call paths to {paths_path}", file=sys.stderr)
+print(f"[setprofile] Profiling enabled, logging functions to {sandwich_path} and calls to {graph_path}", file=sys.stderr)
