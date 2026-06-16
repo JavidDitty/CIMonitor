@@ -129,6 +129,13 @@ runs:
       run: |
         ${{ env.CINTENT_PYFUNCTIONS }} -o ${{ env.CINTENT_LOGS }} ${{ github.workspace }}
 
+    - name: Save the Workflow
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        workflow_path="${{ github.workspace }}/$(echo "${{ github.workflow_ref }}" | sed -E 's|[^/]+/[^/]+/(.+)@.*|\1|')"
+        cp "$workflow_path" "${{ env.CINTENT_LOGS }}"
+
     - name: Write Bash Wrappers
       if: ${{ runner.os == 'Linux' }}
       shell: bash
