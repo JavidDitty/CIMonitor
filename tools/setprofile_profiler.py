@@ -100,18 +100,13 @@ def profile_handler(frame, event, arg):
 
             if id not in data["sandwich"]:
                 code = ''
-                docstring = ''
                 if func_name != "<module>":
                     try:
                         code = inspect.getsource(frame)
                     except:
                         code = ''
-                    try:
-                        docstring = inspect.getdoc(frame)
-                    except:
-                        docstring = ''
                 is_external = _ws_prefixes and not _is_workspace(frame.f_code.co_filename)
-                data["sandwich"][id] = {"count": 0, "duration": 0.0, "is_external": is_external, "docstring": docstring, "code": code}
+                data["sandwich"][id] = {"count": 0, "duration": 0.0, "is_external": is_external, "code": code}
             data["sandwich"][id]["count"] += 1
 
             data["stack"].append((id, call_timestamp))
@@ -151,14 +146,14 @@ def cleanup():
 
     # Write Logs to Files
     with write_lock:
-        sandwich_csv = [["id", "name", "path", "line", "count", "duration_ns", "is_external", "docstring", "code"]]
+        sandwich_csv = [["id", "name", "path", "line", "count", "duration_ns", "is_external", "code"]]
         graph_csv = [["src_id", "dst_id", "count", "duration_ns"]]
         # paths_csv = [["ids", "count", "duration_ns"]]
 
         for data in threads.values():
             id_to_call = {v: k for k, v in data["call_to_id"].items()}
 
-            sandwich_csv.extend([id, id_to_call[id][0], id_to_call[id][1], id_to_call[id][2], info["count"], info["duration"], info["is_external"], info["docstring"], info["code"]] for id, info in data["sandwich"].items())
+            sandwich_csv.extend([id, id_to_call[id][0], id_to_call[id][1], id_to_call[id][2], info["count"], info["duration"], info["is_external"], info["code"]] for id, info in data["sandwich"].items())
             sandwich_writer.writerows(sandwich_csv)
 
             graph_csv.extend([edge[0], edge[1], info["count"], info["duration"]] for edge, info in data["graph"].items())
